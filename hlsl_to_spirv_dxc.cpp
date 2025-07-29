@@ -1,4 +1,5 @@
 // System includes
+#include <stdint.h>
 #ifdef _WIN32
 #include <Windows.h>
 #else
