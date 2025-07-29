@@ -17,5 +17,8 @@ target_compile_definitions(hlsl_to_spirv_dxc PRIVATE SHADER_SOURCE_DIR="${CMAKE_
 target_include_directories(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/include)
 
 # Libraries
-target_link_directories(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/lib)
-target_link_libraries(hlsl_to_spirv_dxc PRIVATE dxcompiler)
+if(WIN32)
+target_link_libraries(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/lib/dxcompiler)
+else()
+target_link_libraries(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/lib/libdxcompiler.so)
+endif()
