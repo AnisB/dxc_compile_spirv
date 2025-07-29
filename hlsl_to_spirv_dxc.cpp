@@ -2,12 +2,62 @@
 #include <stdint.h>
 #ifdef _WIN32
 #include <Windows.h>
-#else
-#include "dxc/Support/Unicode.h"
 #endif
 #include <dxcapi.h>
 #include <fstream>
 #include <vector>
+
+#ifndef _WIN32
+int MultiByteToWideChar(uint32_t /*CodePage*/, uint32_t /*dwFlags*/,
+    const char* lpMultiByteStr, int cbMultiByte,
+    wchar_t* lpWideCharStr, int cchWideChar) {
+
+    if (cbMultiByte == 0) {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return 0;
+    }
+
+    // if cbMultiByte is -1, it indicates that lpMultiByteStr is null-terminated
+    // and the entire string should be processed.
+    if (cbMultiByte == -1) {
+        for (cbMultiByte = 0; lpMultiByteStr[cbMultiByte] != '\0'; ++cbMultiByte)
+            ;
+        // Add 1 for the null-terminating character.
+        ++cbMultiByte;
+    }
+    // If zero is given as the destination size, this function should
+    // return the required size (including the null-terminating character).
+    // This is the behavior of mbstowcs when the target is null.
+    if (cchWideChar == 0) {
+        lpWideCharStr = nullptr;
+    }
+    else if (cchWideChar < cbMultiByte) {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;
+    }
+
+    size_t rv;
+    const char* prevLocale = setlocale(LC_ALL, nullptr);
+    setlocale(LC_ALL, "en_US.UTF-8");
+    if (lpMultiByteStr[cbMultiByte - 1] != '\0') {
+        char* srcStr = (char*)malloc((cbMultiByte + 1) * sizeof(char));
+        strncpy(srcStr, lpMultiByteStr, cbMultiByte);
+        srcStr[cbMultiByte] = '\0';
+        rv = mbstowcs(lpWideCharStr, srcStr, cchWideChar);
+        free(srcStr);
+    }
+    else {
+        rv = mbstowcs(lpWideCharStr, lpMultiByteStr, cchWideChar);
+    }
+
+    if (prevLocale)
+        setlocale(LC_ALL, prevLocale);
+
+    if (rv == (size_t)cbMultiByte)
+        return rv;
+    return rv + 1; // mbstowcs excludes the terminating character
+}
+#endif
 
 // Function that compiles a given shader to spirv
 bool compile_shader_to_spirv(const char* fileName, std::vector<uint32_t>& spirvCode)
