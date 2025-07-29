@@ -1,0 +1,47 @@
+// RWStructuredBuffer to write packed color output
+RWStructuredBuffer<uint> ColorTextureRW : register(u0);
+
+// Raytracing Acceleration Structure
+RaytracingAccelerationStructure RTAS : register(t0, space1);
+
+// Image resolution
+#define IMAGE_RESOLUTION 512
+
+// Packs float4 color to uint
+uint pack_float4_to_uint(float4 color)
+{
+    uint4 rgba = (uint4)round(saturate(color) * 255.0);
+    return (rgba.r) | (rgba.g << 8) | (rgba.b << 16) | (rgba.a << 24);
+}
+
+// Compute shader thread group size
+[numthreads(8, 8, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+    float2 uv = (float2(DTid.xy) / IMAGE_RESOLUTION) * 2.0 - float2(0.5, 0.5);
+
+    // Ray description
+    RayDesc ray;
+    ray.Origin = float3(uv, -5.0);
+    ray.Direction = float3(0.0, 0.0, 1.0);
+    ray.TMin = 0.01;
+    ray.TMax = 100.0f;
+
+    // Initialize the query
+    RayQuery<RAY_FLAG_CULL_NON_OPAQUE | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES> query;
+
+    // Set up a trace.  No work is done yet.
+    query.TraceRayInline(RTAS, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xff, ray);
+
+    // Run the traversal
+    query.Proceed();
+
+    float2 barycentrics = float2(0.0, 0.0);
+    if (query.CommittedStatus() == COMMITTED_TRIANGLE_HIT)
+    {
+        barycentrics = query.CommittedTriangleBarycentrics();
+    }
+
+    uint index = DTid.x + DTid.y * IMAGE_RESOLUTION;
+    ColorTextureRW[index] = pack_float4_to_uint(float4(barycentrics, 0.0, 1.0));
+}
