@@ -1,6 +1,8 @@
 // System includes
 #ifdef _WIN32
 #include <Windows.h>
+#else
+#include "dxc/Support/Unicode.h"
 #endif
 #include <dxcapi.h>
 #include <fstream>
@@ -92,6 +94,8 @@ bool compile_shader_to_spirv(const char* fileName, std::vector<uint32_t>& spirvC
     utils->Release();
     includeHandler->Release();
     result->Release();
+
+    return true;
 }
 
 int main(int argc, char** argv)
