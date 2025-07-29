@@ -1,7 +1,5 @@
 // System includes
-#ifndef _WIN32
-#include <WinAdapter.h>
-#else
+#ifdef _WIN32
 #include <Windows.h>
 #endif
 #include <dxcapi.h>
