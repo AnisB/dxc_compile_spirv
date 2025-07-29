@@ -8,10 +8,8 @@
 #include <vector>
 
 #ifndef _WIN32
-int MultiByteToWideChar(uint32_t /*CodePage*/, uint32_t /*dwFlags*/,
-    const char* lpMultiByteStr, int cbMultiByte,
-    wchar_t* lpWideCharStr, int cchWideChar) {
-
+int MultiByteToWideChar(uint32_t /*CodePage*/, uint32_t /*dwFlags*/, const char* lpMultiByteStr, int cbMultiByte, wchar_t* lpWideCharStr, int cchWideChar)
+{
     if (cbMultiByte == 0) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return 0;

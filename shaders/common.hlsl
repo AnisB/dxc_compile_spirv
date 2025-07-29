@@ -1,0 +1,4 @@
+#ifndef COMMON_HLSL
+#define COMMON_HLSL
+#define USELESS_VARIABLE 1.0
+#endif // COMMON_HLSL

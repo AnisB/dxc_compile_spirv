@@ -1,3 +1,5 @@
+#include "common.hlsl"
+
 // RWStructuredBuffer to write packed color output
 RWStructuredBuffer<uint> ColorTextureRW : register(u0);
 
@@ -43,5 +45,5 @@ void main(uint3 DTid : SV_DispatchThreadID)
     }
 
     uint index = DTid.x + DTid.y * IMAGE_RESOLUTION;
-    ColorTextureRW[index] = pack_float4_to_uint(float4(barycentrics, 0.0, 1.0));
+    ColorTextureRW[index] = pack_float4_to_uint(float4(barycentrics * USELESS_VARIABLE, 0.0, 1.0));
 }
