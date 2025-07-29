@@ -18,7 +18,7 @@ target_include_directories(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/include)
 
 # Libraries
 if(WIN32)
-target_link_libraries(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/lib/dxcompiler)
+target_link_libraries(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/lib/dxcompiler.lib)
 else()
 target_link_libraries(hlsl_to_spirv_dxc PRIVATE ${DXC_ROOT}/lib/libdxcompiler.so)
 endif()
